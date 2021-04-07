@@ -14,7 +14,6 @@ import chess.domain.game.ChessGame;
 import chess.domain.piece.Piece;
 import chess.domain.piece.Team;
 import chess.domain.position.Position;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,19 +30,15 @@ public final class ChessService {
     }
 
     public void chessBoardInit() {
-        try {
-            if (pieceDao.load() == null) {
-                pieceDao.save(new Board().unwrap());
-            }
-            final Map<Position, Piece> chessBoard = pieceDao.load();
-            if (boardDao.load() == null) {
-                boardDao.save(Team.WHITE.teamName(), false);
-            }
-            final BoardDto boardDto = boardDao.load();
-            chessGame = new ChessGame(new Board(chessBoard), boardDto.team(), boardDto.isGameOver());
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (pieceDao.load() == null) {
+            pieceDao.save(new Board().unwrap());
         }
+        final Map<Position, Piece> chessBoard = pieceDao.load();
+        if (boardDao.load() == null) {
+            boardDao.save(Team.WHITE.teamName(), false);
+        }
+        final BoardDto boardDto = boardDao.load();
+        chessGame = new ChessGame(new Board(chessBoard), boardDto.team(), boardDto.isGameOver());
     }
 
     public Response move(final MoveRequest moveRequest) {
@@ -53,12 +48,12 @@ public final class ChessService {
             chessGame.move(source, target);
             changeStatusSaveData(source, target);
             return new Response(ResponseCode.SUCCESS.code(), ResponseCode.SUCCESS.message());
-        } catch (UnsupportedOperationException | IllegalArgumentException | SQLException e) {
+        } catch (UnsupportedOperationException | IllegalArgumentException e) {
             return new Response(ResponseCode.ERROR.code(), e.getMessage());
         }
     }
 
-    private void changeStatusSaveData(final Position source, final Position target) throws SQLException {
+    private void changeStatusSaveData(final Position source, final Position target) {
         if (chessGame.isKingDead()) {
             chessGame.changeGameOver();
         }
@@ -72,11 +67,7 @@ public final class ChessService {
 
     public Response end() {
         if (chessGame.isGameOver()) {
-            try {
-                boardDao.updateIsGameOver();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            boardDao.updateIsGameOver();
             return new Response(ResponseCode.GAME_OVER.code(), ResponseCode.GAME_OVER.message());
         }
         return new Response(ResponseCode.RUN.code(), ResponseCode.RUN.message());
@@ -92,12 +83,8 @@ public final class ChessService {
 
     public void restart() {
         chessGame = new ChessGame();
-        try {
-            pieceDao.deleteAll();
-            boardDao.deleteAll();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        pieceDao.deleteAll();
+        boardDao.deleteAll();
     }
 
     public Response start() {

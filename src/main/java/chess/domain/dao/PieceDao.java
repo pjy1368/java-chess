@@ -12,7 +12,7 @@ import java.util.TreeMap;
 
 public final class PieceDao {
 
-    public Map<Position, Piece> load() throws SQLException {
+    public Map<Position, Piece> load() {
         final String query = "SELECT * FROM pieces";
         try (final Connection conn = ConnectionSetup.getConnection();
             final PreparedStatement pstmt = conn.prepareStatement(query);
@@ -29,40 +29,49 @@ public final class PieceDao {
                 pieces.put(position, PieceFactory.correctPiece(name));
             } while (rs.next());
             return pieces;
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
-    public void save(final Map<Position, Piece> pieces) throws SQLException {
+    public void save(final Map<Position, Piece> pieces) {
         for (final Position position : pieces.keySet()) {
             savePiece(position, pieces.get(position));
         }
     }
 
-    public void savePiece(final Position position, final Piece piece) throws SQLException {
+    public void savePiece(final Position position, final Piece piece) {
         final String query = "INSERT INTO pieces VALUES (?, ?)";
         try (final Connection conn = ConnectionSetup.getConnection();
             final PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, position.horizontalSymbol() + position.verticalSymbol());
             pstmt.setString(2, piece.name());
             pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    public void updatePiece(final Position position, final String name) throws SQLException {
+    public void updatePiece(final Position position, final String name) {
         final String query = "UPDATE pieces SET name = ? WHERE position = ?";
         try (final Connection conn = ConnectionSetup.getConnection();
             final PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, name);
             pstmt.setString(2, position.horizontalSymbol() + position.verticalSymbol());
             pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    public void deleteAll() throws SQLException {
+    public void deleteAll() {
         final String query = "TRUNCATE TABLE pieces";
         try (final Connection conn = ConnectionSetup.getConnection();
             final PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
