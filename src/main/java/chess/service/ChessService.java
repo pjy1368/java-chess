@@ -30,14 +30,12 @@ public final class ChessService {
     }
 
     public void chessBoardInit() {
-        if (pieceDao.load() == null) {
-            pieceDao.save(new Board().unwrap());
-        }
-        final Map<Position, Piece> chessBoard = pieceDao.load();
-        if (boardDao.load() == null) {
-            boardDao.save(Team.WHITE.teamName(), false);
-        }
-        final BoardDto boardDto = boardDao.load();
+        final Map<Position, Piece> chessBoard = pieceDao.load()
+            .orElseGet(() -> pieceDao.save(new Board().unwrap()));
+
+        final BoardDto boardDto = boardDao.load()
+            .orElseGet(() -> boardDao.save(Team.WHITE.teamName(), false));
+
         chessGame = new ChessGame(new Board(chessBoard), boardDto.team(), boardDto.isGameOver());
     }
 

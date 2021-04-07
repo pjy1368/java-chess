@@ -8,17 +8,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 public final class PieceDao {
 
-    public Map<Position, Piece> load() {
+    public Optional<Map<Position, Piece>> load() {
         final String query = "SELECT * FROM pieces";
         try (final Connection conn = ConnectionSetup.getConnection();
             final PreparedStatement pstmt = conn.prepareStatement(query);
             final ResultSet rs = pstmt.executeQuery()) {
             if (!rs.next()) {
-                return null;
+                return Optional.empty();
             }
 
             final Map<Position, Piece> pieces = new TreeMap<>();
@@ -28,17 +29,18 @@ public final class PieceDao {
                 final String name = rs.getString("name");
                 pieces.put(position, PieceFactory.correctPiece(name));
             } while (rs.next());
-            return pieces;
+            return Optional.of(pieces);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return Optional.empty();
     }
 
-    public void save(final Map<Position, Piece> pieces) {
+    public Map<Position, Piece> save(final Map<Position, Piece> pieces) {
         for (final Position position : pieces.keySet()) {
             savePiece(position, pieces.get(position));
         }
+        return pieces;
     }
 
     public void savePiece(final Position position, final Piece piece) {

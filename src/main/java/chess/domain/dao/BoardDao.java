@@ -5,29 +5,31 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
 public final class BoardDao {
 
-    public BoardDto load() {
+    public Optional<BoardDto> load() {
         final String query = "SELECT * FROM board";
 
         try (final Connection conn = ConnectionSetup.getConnection();
             final PreparedStatement pstmt = conn.prepareStatement(query);
             final ResultSet rs = pstmt.executeQuery()) {
+
             if (!rs.next()) {
-                return null;
+                return Optional.empty();
             }
 
             final String team = rs.getString("team");
             final boolean isGameOver = rs.getBoolean("isGameOver");
-            return new BoardDto(team, isGameOver);
+            return Optional.of(new BoardDto(team, isGameOver));
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return Optional.empty();
     }
 
-    public void save(final String team, final boolean isGameOver) {
+    public BoardDto save(final String team, final boolean isGameOver) {
         final String query = "INSERT INTO board VALUES (?, ?)";
         try (final Connection conn = ConnectionSetup.getConnection();
             final PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -37,6 +39,7 @@ public final class BoardDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return new BoardDto(team, isGameOver);
     }
 
     public void updateTeam(final String team) {
