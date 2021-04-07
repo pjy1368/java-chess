@@ -48,7 +48,6 @@ public final class ChessService {
             changeStatusSaveData(source, target);
             return new Response(ResponseCode.SUCCESS.code(), ResponseCode.SUCCESS.message());
         } catch (IllegalArgumentException | UnsupportedOperationException e) {
-            e.printStackTrace();
             return new Response(ResponseCode.ERROR.code(), e.getMessage());
         }
     }
@@ -83,8 +82,8 @@ public final class ChessService {
 
     public void restart() {
         chessGame = new ChessGame();
-        pieceDao.deleteAll();
-        boardDao.deleteAll();
+        pieceDao.delete();
+        boardDao.delete(1);
     }
 
     public Response start() {

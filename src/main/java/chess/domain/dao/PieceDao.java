@@ -68,8 +68,8 @@ public final class PieceDao {
         }
     }
 
-    public void deleteAll() {
-        final String query = "TRUNCATE TABLE pieces";
+    public void delete() {
+        final String query = "DELETE TABLE pieces";
         try (final Connection conn = ConnectionSetup.getConnection();
             final PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.executeUpdate();
