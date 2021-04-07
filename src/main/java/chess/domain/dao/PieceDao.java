@@ -19,12 +19,17 @@ public final class PieceDao {
             final PreparedStatement pstmt = conn.prepareStatement(query);
             final ResultSet rs = pstmt.executeQuery()) {
             final Map<Position, Piece> pieces = new TreeMap<>();
-            while (rs.next()) {
+
+            if (!rs.next()) {
+                return Optional.empty();
+            }
+
+            do {
                 final String positionValue = rs.getString("position");
                 final Position position = Position.from(positionValue);
                 final String name = rs.getString("name");
                 pieces.put(position, PieceFactory.correctPiece(name));
-            }
+            } while (rs.next());
             return Optional.of(pieces);
         } catch (SQLException e) {
             e.printStackTrace();

@@ -17,6 +17,7 @@ import chess.domain.position.Position;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public final class ChessService {
 
@@ -31,10 +32,10 @@ public final class ChessService {
 
     public void chessBoardInit() {
         final Map<Position, Piece> chessBoard = pieceDao.load()
-            .orElseGet(() -> pieceDao.save(new Board().unwrap()));
+            .orElseGet(() -> pieceDao.save(new TreeMap<>(new Board().unwrap())));
 
-        final BoardDto boardDto = boardDao.load()
-            .orElseGet(() -> boardDao.save(Team.WHITE.teamName(), false));
+        final BoardDto boardDto = boardDao.load(1)
+            .orElseGet(() -> boardDao.save(1, Team.WHITE.teamName(), false));
 
         chessGame = new ChessGame(new Board(chessBoard), boardDto.team(), boardDto.isGameOver());
     }
@@ -46,7 +47,8 @@ public final class ChessService {
             chessGame.move(source, target);
             changeStatusSaveData(source, target);
             return new Response(ResponseCode.SUCCESS.code(), ResponseCode.SUCCESS.message());
-        } catch (UnsupportedOperationException | IllegalArgumentException e) {
+        } catch (IllegalArgumentException | UnsupportedOperationException e) {
+            e.printStackTrace();
             return new Response(ResponseCode.ERROR.code(), e.getMessage());
         }
     }
@@ -60,12 +62,12 @@ public final class ChessService {
         final Map<Position, Piece> chessBoard = chessGame.board().unwrap();
         pieceDao.updatePiece(source, ".");
         pieceDao.updatePiece(target, chessBoard.get(target).name());
-        boardDao.updateTeam(chessGame.nowTurn().teamName());
+        boardDao.updateTeam(1, chessGame.nowTurn().teamName());
     }
 
     public Response end() {
         if (chessGame.isGameOver()) {
-            boardDao.updateIsGameOver();
+            boardDao.updateIsGameOver(1);
             return new Response(ResponseCode.GAME_OVER.code(), ResponseCode.GAME_OVER.message());
         }
         return new Response(ResponseCode.RUN.code(), ResponseCode.RUN.message());
