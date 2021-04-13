@@ -68,7 +68,7 @@ public final class BoardDao {
     }
 
     public void delete(final long id) {
-        final String query = "DELETE TABLE board WHERE id = ?";
+        final String query = "DELETE FROM board WHERE id = ?";
         try (final Connection conn = ConnectionSetup.getConnection();
             final PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setLong(1, id);

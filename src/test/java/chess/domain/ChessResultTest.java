@@ -10,7 +10,9 @@ import chess.domain.piece.Queen;
 import chess.domain.piece.Rook;
 import chess.domain.piece.Team;
 import chess.domain.position.Position;
+import java.math.BigInteger;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.TreeMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -62,4 +64,5 @@ class ChessResultTest {
         result = new ChessResult(new Board(chessBoard));
         assertThat(result.winner()).isEqualTo(Team.WHITE);
     }
+
 }
