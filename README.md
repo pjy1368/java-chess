@@ -44,6 +44,11 @@
 ### 실행 결과
 ![image](https://user-images.githubusercontent.com/56083021/121467184-a0fb6d00-c9f3-11eb-9410-afb41f7846fd.png)
 
+
+## 팀원
+- 박진영 (제이온)
+- 장세환 (아론)
+---
 ## Commit Convention
 - 커밋 메시지 언어 : 한글
 - feat : 기능 추가.
